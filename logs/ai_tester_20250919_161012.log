@@ -1,0 +1,13 @@
+2025-09-19 16:10:12,210 [INFO] Generating tests for: sample_module.py
+2025-09-19 16:10:12,210 [INFO] Generated test code:
+import sys, os
+import pytest
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+import sample_module
+2025-09-19 16:10:12,211 [INFO] Tests written to tests\test_generated.py
+2025-09-19 16:10:12,211 [INFO] Running pytest on tests\test_generated.py...
+2025-09-19 16:10:12,461 [INFO] Pytest output:
+
+no tests ran in 0.00s
+
+2025-09-19 16:10:12,461 [WARNING] No test results parsed. Did pytest run correctly?
