@@ -1,1 +1,24 @@
+
+__pycache__/
+*.py[cod]
+*.pyo
+
+.pytest_cache/
+
+# Virtual environments
 .venv/
+
+# Logs
+logs/
+*.log
+
+# Test results / generated files
+results/
+tests/
+
+# Environment variables
+.env/
+
+# OS-specific files
+.DS_Store
+Thumbs.db

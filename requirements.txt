@@ -3,3 +3,4 @@ coverage
 google-genai
 openai
 python-dotenv
+hypothesis

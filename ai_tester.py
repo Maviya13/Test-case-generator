@@ -247,7 +247,7 @@ def generate_baseline_tests(module_path: str, test_file: str = "tests/test_gener
     
     with open(test_file, "w", encoding='utf-8') as f:
         # Write imports
-        f.write("import sys\nimport os\nimport pytest\n")
+        f.write("import sys\nimport os\nimport pytest\nfrom hypothesis import given, strategies as st\n")
         f.write("sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))\n")
         f.write(f"import {module_name}\n\n")
 
@@ -338,6 +338,7 @@ You are an expert Python test engineer. Generate {max_cases} comprehensive pytes
 8. For TypeError when concatenating str and int, the message is likely 'can only concatenate str (not "int") to str'
 9. For hello(None), the expected return is "Hello, World!"
 10. If a numeric value is passed to hello(name), it should be treated as a string and return a personalized greeting.
+11. When generating tests for functions with numeric inputs, also include property-based tests using the `Hypothesis` library, with appropriate strategies (e.g., `st.integers()`, `st.floats()`).
 
 **Example format:**
 ```python
@@ -353,6 +354,37 @@ def test_{func_name}_edge_case():
 ```
 
 Generate only the test functions, no explanations.
+
+**Few-shot Example (for a function like 'hello'):**
+
+Function Details:
+- Name: hello
+- Signature: def hello(name: str = None) -> str
+- Docstring: "A function that greets the user."
+- Module: sample_module
+
+Generated Tests:
+```python
+def test_hello_default_behavior():
+    \"\"\"Test hello() with no input, expecting 'Hello, World!'\"\"\"
+    result = sample_module.hello()
+    assert result == \"Hello, World!\"
+
+def test_hello_personalized_greeting():
+    \"\"\"Test hello() with a name, expecting a personalized greeting.\"\"\"
+    result = sample_module.hello(\"Alice\")
+    assert result == \"Hello, Alice!\"
+
+def test_hello_empty_string():
+    \"\"\"Test hello() with an empty string, expecting 'Hello, !'\"\"\"
+    result = sample_module.hello(\"\")
+    assert result == \"Hello, !\"
+
+def test_hello_error_condition():
+    \"\"\"Test hello() with 'error' name, expecting an error message.\"\"\"
+    result = sample_module.hello(\"error\")
+    assert result == \"An unexpected error occurred.\"
+```
 """
 
     try:
@@ -593,7 +625,7 @@ def main():
         
         # Phase 4: Analyze results
         logger.info("Starting Phase 4: Results analysis...")
-        analyze_results(results)
+        analyze_results(results, os.path.splitext(os.path.basename(args.module))[0])
         
         logger.info("🎉 AI Test Generator completed successfully!")
         
