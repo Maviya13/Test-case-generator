@@ -17,7 +17,12 @@ results/
 tests/
 
 # Environment variables
-.env/
+.env
+
+# Web app specific ignores
+/web_app/.venv/
+/web_app/frontend/node_modules/
+/web_app/frontend/build/
 
 # OS-specific files
 .DS_Store

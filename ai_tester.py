@@ -589,25 +589,15 @@ def analyze_results(results: dict, module_name: str = "sample_module") -> None:
 # -------------------------
 # Main Execution
 # -------------------------
-def main():
-    """Main function to orchestrate test generation and execution."""
-    import argparse
-    parser = argparse.ArgumentParser(description="AI-powered Test Generator with Gemini API")
-    parser.add_argument("module", help="Python module to test")
-    parser.add_argument("--test-file", default="tests/test_generated.py", help="Output test file")
-    parser.add_argument("--results-file", default="results/test_results.json", help="Results file")
-    parser.add_argument("--skip-llm", action="store_true", help="Skip LLM test generation")
-    parser.add_argument("--max-cases", type=int, default=3, help="Max test cases per function")
-    
-    args = parser.parse_args()
-    
+def run_ai_tests(module_path: str, test_file: str = "tests/test_generated.py", results_file: str = "results/test_results.json", coverage_file: str = "results/coverage.json", skip_llm: bool = False, max_cases: int = 3) -> dict:
+    """Orchestrates test generation, execution, and results analysis, returning a dictionary of results."""
     try:
         # Phase 1: Generate baseline tests
         logger.info("Starting Phase 1: Baseline test generation...")
-        functions, classes, test_file = generate_baseline_tests(args.module, args.test_file)
+        functions, classes, test_file = generate_baseline_tests(module_path, test_file)
         
         # Phase 2: Generate LLM tests (unless skipped)
-        if not args.skip_llm:
+        if not skip_llm:
             logger.info("Starting Phase 2: LLM-enhanced test generation...")
             load_dotenv()
             gemini_api_key = os.getenv("GEMINI_API_KEY")
@@ -615,28 +605,30 @@ def main():
                 logger.warning("GEMINI_API_KEY not found. Skipping LLM test generation.")
             else:
                 genai.configure(api_key=gemini_api_key)
-                generate_llm_tests(args.module, test_file, functions, max_cases=args.max_cases)
+                generate_llm_tests(module_path, test_file, functions, max_cases=max_cases)
         else:
             logger.info("Skipping LLM test generation as requested")
         
         # Phase 3: Run tests
         logger.info("Starting Phase 3: Test execution...")
-        results = run_tests(test_file, args.results_file)
+        results = run_tests(test_file, results_file, coverage_file)
         
-        # Phase 4: Analyze results
+        # Phase 4: Analyze results (and get back structured data)
         logger.info("Starting Phase 4: Results analysis...")
-        analyze_results(results, os.path.splitext(os.path.basename(args.module))[0])
+        module_name = os.path.splitext(os.path.basename(module_path))[0]
+        analyze_results(results, module_name)
         
         logger.info("🎉 AI Test Generator completed successfully!")
+        return results
         
     except Exception as e:
         logger.error(f"❌ Error during execution: {e}")
-        # Re-raise the exception after logging it, so the script exits with an error code.
-        raise
+        raise # Re-raise the exception for FastAPI to handle
 
-if __name__ == "__main__":
-    try:
-        main()
-    except Exception as e:
-        logger.error(f"Unhandled exception in main execution: {e}")
-        sys.exit(1)
+# Remove the if __name__ == "__main__": block to make the file importable
+# if __name__ == "__main__":
+#     try:
+#         main()
+#     except Exception as e:
+#         logger.error(f"Unhandled exception in main execution: {e}")
+#         sys.exit(1)
